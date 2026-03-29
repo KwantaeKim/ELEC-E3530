@@ -1,0 +1,20 @@
+`include "disciplines.vams"
+`include "constants.vams"
+
+module noise_src(p, n);
+    inout p, n;
+    electrical p, n;
+
+    parameter real nd = 4e-9 from (0:inf);   // noise density [V/sqrt(Hz)]
+    parameter real bw = 1e9   from (0:inf);  // noise bandwidth [Hz]
+    parameter integer seed = 271;
+
+    integer iseed;
+    real nv;
+
+    analog begin
+        @(initial_step) iseed = seed;
+        @(timer(0, 0.5/bw)) nv = nd * $rdist_normal(iseed, 0.0, sqrt(bw));
+        V(p,n) <+ transition(nv, 0, 0.5/bw);
+    end
+endmodule
